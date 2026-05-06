@@ -11,7 +11,7 @@
     "composer.config.json"
   ],
   "bin": {
-    "skill-composer": "./bin/skill-composer.js"
+    "skill-composer": "bin/skill-composer.js"
   },
   "scripts": {
     "build": "tsc",

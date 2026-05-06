@@ -8,13 +8,13 @@ From npm after publish:
 
 ```bash
 npm install -g skill-composer
-skill-composer install --agent codex
+skill-composer install
 ```
 
 One-shot with npx after publish:
 
 ```bash
-npx skill-composer install --agent codex
+npx skill-composer install
 ```
 
 From a local checkout:
@@ -22,8 +22,10 @@ From a local checkout:
 ```bash
 npm install
 npm run build
-node dist/cli.js install --agent codex
+node dist/cli.js install
 ```
+
+`skill-composer install` installs the orchestration skill into every available agent it detects. Currently supported targets are Codex, Claude Code, and Cursor. Use `--agent codex` only when you intentionally want to install into one agent.
 
 ## Runtime Flow
 
