@@ -19,6 +19,7 @@ export interface RemoteSkillCacheOptions {
     cacheDir?: string;
     ttlHours?: number;
     refresh?: boolean;
+    timeoutMs?: number;
 }
 export declare function parseRemoteSkillReference(reference: string): RemoteSkillReference | null;
 export declare function getRemoteCacheDir(config?: ComposerConfig, override?: string): string;

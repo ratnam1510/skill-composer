@@ -69,16 +69,27 @@ function rawSkillUrlCandidates(ref) {
         `${base}/master/${encodedSkill}/SKILL.md`,
     ];
 }
-async function fetchText(url) {
-    const response = await fetch(url, {
-        headers: {
-            'accept': 'text/markdown,text/plain,text/html;q=0.8,*/*;q=0.5',
-            'user-agent': 'skill-composer',
-        },
-    });
-    if (!response.ok)
+async function fetchText(url, timeoutMs = 10_000) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const response = await fetch(url, {
+            signal: controller.signal,
+            headers: {
+                'accept': 'text/markdown,text/plain,text/html;q=0.8,*/*;q=0.5',
+                'user-agent': 'skill-composer',
+            },
+        });
+        if (!response.ok)
+            return null;
+        return response.text();
+    }
+    catch {
         return null;
-    return response.text();
+    }
+    finally {
+        clearTimeout(timeout);
+    }
 }
 function parseSkillContent(content, fallbackName) {
     const parsed = matter(content);
@@ -118,6 +129,7 @@ export async function fetchRemoteSkill(reference, config, options = {}) {
     }
     const cacheDir = getRemoteCacheDir(config, options.cacheDir);
     const ttlHours = options.ttlHours ?? config?.remoteCacheTtlHours ?? DEFAULT_TTL_HOURS;
+    const timeoutMs = options.timeoutMs ?? 10_000;
     if (!options.refresh) {
         const cached = getCachedRemoteSkill(reference, config, options);
         if (cached)
@@ -126,14 +138,14 @@ export async function fetchRemoteSkill(reference, config, options = {}) {
     let rawUrl = '';
     let content = null;
     for (const candidate of rawSkillUrlCandidates(ref)) {
-        content = await fetchText(candidate);
+        content = await fetchText(candidate, timeoutMs);
         if (content) {
             rawUrl = candidate;
             break;
         }
     }
     if (!content) {
-        const html = await fetchText(ref.sourceUrl);
+        const html = await fetchText(ref.sourceUrl, timeoutMs);
         const markdown = html ? extractSkillMarkdownFromHtml(html) : null;
         if (markdown) {
             rawUrl = ref.sourceUrl;

@@ -27,6 +27,7 @@ export interface RemoteSkillCacheOptions {
   cacheDir?: string;
   ttlHours?: number;
   refresh?: boolean;
+  timeoutMs?: number;
 }
 
 const SKILLS_SH_RE = /^https:\/\/skills\.sh\/([^/]+)\/([^/]+)\/([^/?#]+)(?:[/?#].*)?$/i;
@@ -107,16 +108,26 @@ function rawSkillUrlCandidates(ref: RemoteSkillReference): string[] {
   ];
 }
 
-async function fetchText(url: string): Promise<string | null> {
-  const response = await fetch(url, {
-    headers: {
-      'accept': 'text/markdown,text/plain,text/html;q=0.8,*/*;q=0.5',
-      'user-agent': 'skill-composer',
-    },
-  });
+async function fetchText(url: string, timeoutMs = 10_000): Promise<string | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-  if (!response.ok) return null;
-  return response.text();
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'accept': 'text/markdown,text/plain,text/html;q=0.8,*/*;q=0.5',
+        'user-agent': 'skill-composer',
+      },
+    });
+
+    if (!response.ok) return null;
+    return response.text();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function parseSkillContent(content: string, fallbackName: string): { title: string; description: string; body: string } {
@@ -166,6 +177,7 @@ export async function fetchRemoteSkill(
 
   const cacheDir = getRemoteCacheDir(config, options.cacheDir);
   const ttlHours = options.ttlHours ?? config?.remoteCacheTtlHours ?? DEFAULT_TTL_HOURS;
+  const timeoutMs = options.timeoutMs ?? 10_000;
   if (!options.refresh) {
     const cached = getCachedRemoteSkill(reference, config, options);
     if (cached) return { entry: cached, cacheHit: true };
@@ -174,7 +186,7 @@ export async function fetchRemoteSkill(
   let rawUrl = '';
   let content: string | null = null;
   for (const candidate of rawSkillUrlCandidates(ref)) {
-    content = await fetchText(candidate);
+    content = await fetchText(candidate, timeoutMs);
     if (content) {
       rawUrl = candidate;
       break;
@@ -182,7 +194,7 @@ export async function fetchRemoteSkill(
   }
 
   if (!content) {
-    const html = await fetchText(ref.sourceUrl);
+    const html = await fetchText(ref.sourceUrl, timeoutMs);
     const markdown = html ? extractSkillMarkdownFromHtml(html) : null;
     if (markdown) {
       rawUrl = ref.sourceUrl;
