@@ -1,0 +1,38 @@
+{
+  "name": "skill-composer",
+  "version": "1.0.0",
+  "description": "Build-time skill compiler that chains and merges agent skills for zero-overhead composed pipelines",
+  "type": "module",
+  "main": "dist/index.js",
+  "files": [
+    "bin",
+    "dist",
+    "templates",
+    "composer.config.json"
+  ],
+  "bin": {
+    "skill-composer": "./bin/skill-composer.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js",
+    "dev": "tsc --watch",
+    "compose": "node dist/cli.js compose",
+    "scan": "node dist/cli.js scan",
+    "graph": "node dist/cli.js graph",
+    "stats": "node dist/cli.js stats"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "fast-glob": "^3.3.2",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^22.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

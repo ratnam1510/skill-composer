@@ -1,0 +1,64 @@
+{
+  "agents": {
+    "claude-code": {
+      "skillDirs": [
+        "~/.claude/skills",
+        "~/.claude/commands",
+        "~/.claude/plugins"
+      ],
+      "outputDir": "~/.claude/commands/composed",
+      "configFile": "CLAUDE.md",
+      "format": "markdown"
+    },
+    "codex": {
+      "skillDirs": [
+        "~/.codex/skills",
+        "~/.agents/skills"
+      ],
+      "outputDir": "~/.codex/skills/composed",
+      "configFile": "codex.md",
+      "format": "markdown"
+    },
+    "cursor": {
+      "skillDirs": [
+        "~/.cursor/skills"
+      ],
+      "outputDir": "~/.cursor/skills/composed",
+      "configFile": ".cursorrules",
+      "format": "markdown"
+    },
+    "generic": {
+      "skillDirs": [],
+      "outputDir": "./composed",
+      "configFile": "AGENTS.md",
+      "format": "markdown"
+    }
+  },
+  "catalogDirs": [
+    "~/.agents/skills",
+    "~/.codex/skills",
+    "~/.codex/skills/.system",
+    "~/.claude/skills",
+    "~/.cursor/skills",
+    "~/.windsurf/skills"
+  ],
+  "remoteCacheDir": "~/.skill-composer/remote-skills",
+  "remoteCacheTtlHours": 336,
+  "chains": {
+    "Design Pipeline": ["frontend-design", "animate", "polish", "audit"],
+    "Design & Ship": ["frontend-design", "animate", "optimize", "harden", "polish"],
+    "Design Review": ["frontend-design", "critique", "distill", "polish"],
+    "Accessibility": ["audit", "clarify", "harden", "adapt"],
+    "Visual Enhancement": ["colorize", "bolder", "animate", "delight"],
+    "Visual Refinement": ["quieter", "distill", "normalize", "polish"],
+    "Component Extraction": ["extract", "normalize", "adapt"],
+    "Onboarding Flow": ["onboard", "clarify", "delight", "polish"],
+    "Code Quality": ["code-review", "security-review", "harden"],
+    "Remotion Video": ["remotion-best-practices", "animations", "transitions", "audio", "timing"],
+    "Remotion Captions": ["transcribe-captions", "display-captions", "subtitles", "timing"],
+    "Remotion Media": ["videos", "images", "audio", "ffmpeg", "trimming"],
+    "Plugin Development": ["plugin-structure", "skill-development", "command-development", "agent-development"]
+  },
+  "exclude": ["**/node_modules/**", "**/MEMORY.md", "**/README.md", "**/CHANGELOG.md"],
+  "maxChainLength": 6
+}

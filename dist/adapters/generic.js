@@ -1,0 +1,73 @@
+import matter from 'gray-matter';
+import { estimateTokens, extractKeywords, slugify } from '../utils.js';
+function extractNameFromContent(content, filePath) {
+    const headingMatch = content.match(/^#{1,3}\s+(.+)$/m);
+    if (headingMatch)
+        return headingMatch[1].trim();
+    const basename = filePath.split('/').pop() ?? 'untitled';
+    return basename.replace(/\.\w+$/, '');
+}
+function extractDescriptionFromContent(content) {
+    const lines = content.trim().split('\n');
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('---')) {
+            return trimmed;
+        }
+    }
+    return '';
+}
+function extractChainsTo(frontmatter, content) {
+    if (Array.isArray(frontmatter.chains_to))
+        return frontmatter.chains_to;
+    if (Array.isArray(frontmatter.chainsTo))
+        return frontmatter.chainsTo;
+    const chainMatch = content.match(/(?:chain|then run|followed by|next skill)[:\s]+\/?([\w-]+(?:\s*,\s*\/?[\w-]+)*)/i);
+    if (chainMatch) {
+        return chainMatch[1].split(',').map(s => s.trim().replace(/^\//, ''));
+    }
+    return [];
+}
+export const genericAdapter = {
+    agent: 'generic',
+    extensions: ['.md', '.txt'],
+    parse(file) {
+        if (!file.content.trim())
+            return null;
+        let frontmatter = {};
+        let content = file.content;
+        try {
+            const parsed = matter(file.content);
+            frontmatter = parsed.data;
+            content = parsed.content;
+        }
+        catch {
+            content = file.content;
+        }
+        const name = frontmatter.name || extractNameFromContent(content, file.path);
+        const description = frontmatter.description || extractDescriptionFromContent(content);
+        const instructions = content.trim();
+        if (!instructions)
+            return null;
+        const keywords = extractKeywords(`${name} ${description}`);
+        const triggers = keywords.slice(0, 8).map((kw, i) => ({
+            pattern: kw,
+            weight: 1 - i * 0.05,
+        }));
+        const chainsTo = extractChainsTo(frontmatter, instructions);
+        return {
+            id: slugify(name),
+            name,
+            description,
+            triggers,
+            inputs: frontmatter.inputs ?? [],
+            outputs: frontmatter.outputs ?? [],
+            categories: frontmatter.categories ?? [],
+            instructions,
+            chainsTo,
+            source: { agent: file.agent, path: file.path, format: 'markdown' },
+            tokenEstimate: estimateTokens(instructions),
+        };
+    },
+};
+//# sourceMappingURL=generic.js.map
