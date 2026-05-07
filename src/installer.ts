@@ -14,13 +14,55 @@ interface AgentTarget {
   agent: AgentType;
   skillDir: string;
   folderName: string;
+  rootDir: string;
 }
 
-const DEFAULT_TARGETS: AgentTarget[] = [
-  { agent: 'claude-code', skillDir: '~/.claude/skills', folderName: 'skill-composer' },
-  { agent: 'codex', skillDir: '~/.codex/skills', folderName: 'skill-composer' },
-  { agent: 'cursor', skillDir: '~/.cursor/skills', folderName: 'skill-composer' },
+/**
+ * Built-in registry of known AI coding agents that follow a `~/.<agent>/skills`
+ * convention. Each entry is auto-detected at install time: skill-composer only
+ * installs into agents whose root directory exists on disk.
+ *
+ * To add a custom agent, declare it under `agents.<name>` in composer.config.json
+ * with at least a `skillDirs` array — the first entry will be used as the install
+ * target and the agent will be auto-detected like the built-ins.
+ */
+const KNOWN_AGENTS: AgentTarget[] = [
+  { agent: 'claude-code', rootDir: '~/.claude',   skillDir: '~/.claude/skills',   folderName: 'skill-composer' },
+  { agent: 'codex',       rootDir: '~/.codex',    skillDir: '~/.codex/skills',    folderName: 'skill-composer' },
+  { agent: 'cursor',      rootDir: '~/.cursor',   skillDir: '~/.cursor/skills',   folderName: 'skill-composer' },
+  { agent: 'windsurf',    rootDir: '~/.windsurf', skillDir: '~/.windsurf/skills', folderName: 'skill-composer' },
+  { agent: 'amp',         rootDir: '~/.amp',      skillDir: '~/.amp/skills',      folderName: 'skill-composer' },
+  { agent: 'gemini',      rootDir: '~/.gemini',   skillDir: '~/.gemini/skills',   folderName: 'skill-composer' },
+  { agent: 'cline',       rootDir: '~/.cline',    skillDir: '~/.cline/skills',    folderName: 'skill-composer' },
+  { agent: 'continue',    rootDir: '~/.continue', skillDir: '~/.continue/skills', folderName: 'skill-composer' },
+  { agent: 'aider',       rootDir: '~/.aider',    skillDir: '~/.aider/skills',    folderName: 'skill-composer' },
+  { agent: 'roo',         rootDir: '~/.roo',      skillDir: '~/.roo/skills',      folderName: 'skill-composer' },
+  { agent: 'qwen',        rootDir: '~/.qwen',     skillDir: '~/.qwen/skills',     folderName: 'skill-composer' },
+  { agent: 'copilot',     rootDir: '~/.copilot',  skillDir: '~/.copilot/skills',  folderName: 'skill-composer' },
 ];
+
+function buildTargetRegistry(config?: ComposerConfig): AgentTarget[] {
+  const byAgent = new Map<string, AgentTarget>();
+  for (const t of KNOWN_AGENTS) byAgent.set(t.agent, t);
+
+  if (config?.agents) {
+    for (const [agent, cfg] of Object.entries(config.agents)) {
+      if (agent === 'generic') continue;
+      const skillDir = cfg.skillDirs?.[0];
+      if (!skillDir) continue;
+      const rootDir = skillDir.replace(/\/skills(\/.*)?$/, '');
+      if (!byAgent.has(agent)) {
+        byAgent.set(agent, { agent, rootDir, skillDir, folderName: 'skill-composer' });
+      }
+    }
+  }
+
+  return [...byAgent.values()];
+}
+
+export function detectInstalledAgents(config?: ComposerConfig): AgentTarget[] {
+  return buildTargetRegistry(config).filter(t => existsSync(expandPath(t.rootDir)));
+}
 
 function getTemplatePath(): string {
   const candidates = [
@@ -132,16 +174,15 @@ export async function install(
     throw new Error(`Cannot read template: ${err}`);
   }
 
-  const targets = agents
-    ? DEFAULT_TARGETS.filter(t => agents.includes(t.agent))
-    : DEFAULT_TARGETS;
+  const registry = buildTargetRegistry(config);
+  const targets = agents ? registry.filter(t => agents.includes(t.agent)) : registry;
 
   for (const target of targets) {
     const dir = expandPath(join(target.skillDir, target.folderName));
 
     try {
-      const parentDir = expandPath(target.skillDir);
-      if (!existsSync(parentDir)) {
+      const rootDir = expandPath(target.rootDir);
+      if (!existsSync(rootDir)) {
         results.push({ agent: target.agent, path: dir, action: 'skipped (agent not installed)' });
         continue;
       }
@@ -177,12 +218,12 @@ export async function install(
 
 export async function uninstall(
   agents?: string[],
+  config?: ComposerConfig,
 ): Promise<Array<{ agent: string; action: string }>> {
   const results: Array<{ agent: string; action: string }> = [];
 
-  const targets = agents
-    ? DEFAULT_TARGETS.filter(t => agents.includes(t.agent))
-    : DEFAULT_TARGETS;
+  const registry = buildTargetRegistry(config);
+  const targets = agents ? registry.filter(t => agents.includes(t.agent)) : registry;
 
   for (const target of targets) {
     const dir = expandPath(join(target.skillDir, target.folderName));

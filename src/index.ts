@@ -12,4 +12,4 @@ export {
 export { parseSkillFiles } from './parser.js';
 export { buildGraph } from './graph.js';
 export { discoverChains, generateManifest } from './router.js';
-export { install, uninstall } from './installer.js';
+export { install, uninstall, detectInstalledAgents } from './installer.js';

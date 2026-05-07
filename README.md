@@ -1,8 +1,8 @@
 # skill-composer
 
-**One install. Your AI agent now chains skills automatically.**
+**One install. Every AI agent on your machine now chains skills automatically.**
 
-Stop manually running `/frontend-design` then `/animate` then `/polish` then `/audit`. Skill-composer reads the prompt, picks the right chain, and runs the whole pipeline in order — across Claude Code, Codex, and Cursor.
+Stop manually running `/frontend-design` then `/animate` then `/polish` then `/audit`. Skill-composer reads the prompt, picks the right chain, and runs the whole pipeline in order — across **every AI agent it finds on your system**.
 
 ## Install (one shot)
 
@@ -10,7 +10,13 @@ Stop manually running `/frontend-design` then `/animate` then `/polish` then `/a
 npx skill-composer install
 ```
 
-That's it. No flags, no config. It auto-detects every agent you have installed (`~/.claude`, `~/.codex`, `~/.cursor`) and registers itself into each one.
+That's it. No flags, no config. It auto-detects every agent installed under your home directory and registers itself into each one — Claude Code, Codex, Cursor, Windsurf, Amp, Gemini, Cline, Continue, Aider, Roo, Qwen, Copilot, plus anything else you declare in `composer.config.json`.
+
+To see which agents were auto-detected on your machine before installing:
+
+```bash
+npx skill-composer agents
+```
 
 To remove later:
 
@@ -70,6 +76,7 @@ One prompt. The agent runs the full Design Pipeline because it recognizes the tr
 You don't need any of these for normal use, but they're there:
 
 ```bash
+npx skill-composer agents            # list AI agents auto-detected on your machine
 npx skill-composer scan              # list every skill found across your agents
 npx skill-composer chains            # show the 13 prebuilt + auto-detected chains
 npx skill-composer discover <query>  # rank skills relevant to a query
@@ -80,13 +87,26 @@ npx skill-composer graph             # visualize skill relationships
 
 ## Supported agents
 
-| Agent       | Detected at                 | Status |
-|-------------|-----------------------------|--------|
-| Claude Code | `~/.claude/skills`          | ✅     |
-| Codex       | `~/.codex/skills`           | ✅     |
-| Cursor      | `~/.cursor/skills`          | ✅     |
+Auto-detected from a built-in registry. An agent is included only if its root directory exists on your machine — skill-composer will never write into agents you don't have installed.
 
-Need another agent? Add it to your own `composer.config.json` — the generic adapter handles any markdown skill format.
+| Agent       | Detected at         |
+|-------------|---------------------|
+| Claude Code | `~/.claude/skills`  |
+| Codex       | `~/.codex/skills`   |
+| Cursor      | `~/.cursor/skills`  |
+| Windsurf    | `~/.windsurf/skills`|
+| Amp         | `~/.amp/skills`     |
+| Gemini      | `~/.gemini/skills`  |
+| Cline       | `~/.cline/skills`   |
+| Continue    | `~/.continue/skills`|
+| Aider       | `~/.aider/skills`   |
+| Roo Code    | `~/.roo/skills`     |
+| Qwen        | `~/.qwen/skills`    |
+| Copilot     | `~/.copilot/skills` |
+
+**Need another agent?** Add an entry under `agents.<name>` in your `composer.config.json` with at least a `skillDirs` array. It will be auto-detected and installed into just like the built-ins — no code changes required. The generic adapter handles any markdown skill format.
+
+Run `npx skill-composer agents` to see what's currently detected on your machine.
 
 ## Requirements
 

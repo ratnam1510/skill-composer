@@ -27,6 +27,60 @@
       "configFile": ".cursorrules",
       "format": "markdown"
     },
+    "windsurf": {
+      "skillDirs": ["~/.windsurf/skills"],
+      "outputDir": "~/.windsurf/skills/composed",
+      "configFile": ".windsurfrules",
+      "format": "markdown"
+    },
+    "amp": {
+      "skillDirs": ["~/.amp/skills"],
+      "outputDir": "~/.amp/skills/composed",
+      "configFile": "AGENTS.md",
+      "format": "markdown"
+    },
+    "gemini": {
+      "skillDirs": ["~/.gemini/skills"],
+      "outputDir": "~/.gemini/skills/composed",
+      "configFile": "GEMINI.md",
+      "format": "markdown"
+    },
+    "cline": {
+      "skillDirs": ["~/.cline/skills"],
+      "outputDir": "~/.cline/skills/composed",
+      "configFile": ".clinerules",
+      "format": "markdown"
+    },
+    "continue": {
+      "skillDirs": ["~/.continue/skills"],
+      "outputDir": "~/.continue/skills/composed",
+      "configFile": "config.json",
+      "format": "markdown"
+    },
+    "aider": {
+      "skillDirs": ["~/.aider/skills"],
+      "outputDir": "~/.aider/skills/composed",
+      "configFile": ".aider.conf.yml",
+      "format": "markdown"
+    },
+    "roo": {
+      "skillDirs": ["~/.roo/skills"],
+      "outputDir": "~/.roo/skills/composed",
+      "configFile": ".roo/rules.md",
+      "format": "markdown"
+    },
+    "qwen": {
+      "skillDirs": ["~/.qwen/skills"],
+      "outputDir": "~/.qwen/skills/composed",
+      "configFile": "QWEN.md",
+      "format": "markdown"
+    },
+    "copilot": {
+      "skillDirs": ["~/.copilot/skills"],
+      "outputDir": "~/.copilot/skills/composed",
+      "configFile": ".github/copilot-instructions.md",
+      "format": "markdown"
+    },
     "generic": {
       "skillDirs": [],
       "outputDir": "./composed",

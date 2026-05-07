@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial public release.
-- `skill-composer install` / `uninstall` to register the orchestration skill into Claude Code, Codex, and Cursor.
+- `skill-composer install` / `uninstall` auto-detects every AI agent on the machine and registers the orchestration skill into each one. Built-in registry covers Claude Code, Codex, Cursor, Windsurf, Amp, Gemini, Cline, Continue, Aider, Roo, Qwen, and Copilot. Any custom agent declared under `agents.<name>` in `composer.config.json` is auto-detected the same way — no code changes required.
+- `skill-composer agents` to list AI agents auto-detected on the machine.
 - `skill-composer scan` to discover installed skills across all configured agent directories.
 - `skill-composer chains` to surface manual, declared, and auto-detected chains.
 - `skill-composer discover [query]` to rank loaded and locally discoverable skills.

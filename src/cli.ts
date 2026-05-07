@@ -7,7 +7,7 @@ import { scanSkills } from './scanner.js';
 import { parseSkillFiles } from './parser.js';
 import { buildGraph } from './graph.js';
 import { discoverChains, generateManifest } from './router.js';
-import { install, uninstall } from './installer.js';
+import { install, uninstall, detectInstalledAgents } from './installer.js';
 import { discoverSkillCatalog, rankSkillsForQuery } from './catalog.js';
 import {
   clearRemoteSkillCache,
@@ -99,12 +99,37 @@ program
   .description('Remove skill-composer from all agents')
   .option('--agent <name>', 'uninstall from specific agent only')
   .action(async (opts) => {
+    const parentOpts = program.opts();
+    const config = loadConfig(parentOpts.config);
     const agents = opts.agent ? [opts.agent] : undefined;
-    const results = await uninstall(agents);
+    const results = await uninstall(agents, config);
 
     console.log('\nSkill Composer — Uninstalling...\n');
     for (const r of results) {
       console.log(`  ${r.agent}: ${r.action}`);
+    }
+    console.log('');
+  });
+
+program
+  .command('agents')
+  .description('List AI agents auto-detected on this machine')
+  .action(() => {
+    const parentOpts = program.opts();
+    const config = loadConfig(parentOpts.config);
+    const detected = detectInstalledAgents(config);
+
+    if (detected.length === 0) {
+      console.log('\nNo supported agents detected.\n');
+      console.log('Skill-composer scans for ~/.<agent>/ directories from a built-in registry.');
+      console.log('To add a custom agent, declare it under "agents" in composer.config.json.\n');
+      return;
+    }
+
+    console.log('');
+    console.log(`Auto-detected ${detected.length} agent(s):\n`);
+    for (const t of detected) {
+      console.log(`  + ${t.agent.padEnd(14)} ${t.skillDir}`);
     }
     console.log('');
   });

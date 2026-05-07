@@ -1,4 +1,5 @@
-export type AgentType = 'claude-code' | 'codex' | 'cursor' | 'windsurf' | 'generic';
+export type KnownAgent = 'claude-code' | 'codex' | 'cursor' | 'windsurf' | 'amp' | 'gemini' | 'cline' | 'continue' | 'aider' | 'roo' | 'qwen' | 'copilot' | 'generic';
+export type AgentType = KnownAgent | (string & {});
 export type SkillAvailability = 'loaded' | 'discoverable' | 'referenced';
 export interface SkillSource {
     agent: AgentType;
