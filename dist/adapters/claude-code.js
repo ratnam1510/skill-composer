@@ -52,7 +52,7 @@ function extractChainsTo(frontmatter, content) {
         return frontmatter.chainsTo;
     if (typeof frontmatter.chain === 'string')
         return frontmatter.chain.split(',').map(s => s.trim());
-    const chainMatch = content.match(/(?:chain|then run|followed by|next skill)[:\s]+\/?([\w-]+(?:\s*,\s*\/?[\w-]+)*)/i);
+    const chainMatch = content.match(/(?:^|\n)\s*(?:chains?[_-]?to|then[_-]?run|followed[_-]?by|next[_-]?skill)\s*:\s*\/?([\w-]+(?:\s*,\s*\/?[\w-]+)*)/i);
     if (chainMatch) {
         return chainMatch[1].split(',').map(s => s.trim().replace(/^\//, ''));
     }

@@ -22,7 +22,7 @@ function extractChainsTo(frontmatter, content) {
         return frontmatter.chains_to;
     if (Array.isArray(frontmatter.chainsTo))
         return frontmatter.chainsTo;
-    const chainMatch = content.match(/(?:chain|then run|followed by|next skill)[:\s]+\/?([\w-]+(?:\s*,\s*\/?[\w-]+)*)/i);
+    const chainMatch = content.match(/(?:^|\n)\s*(?:chains?[_-]?to|then[_-]?run|followed[_-]?by|next[_-]?skill)\s*:\s*\/?([\w-]+(?:\s*,\s*\/?[\w-]+)*)/i);
     if (chainMatch) {
         return chainMatch[1].split(',').map(s => s.trim().replace(/^\//, ''));
     }
