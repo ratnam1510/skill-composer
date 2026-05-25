@@ -1,6 +1,6 @@
 {
   "name": "skill-composer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Build-time skill compiler that chains and merges agent skills for zero-overhead composed pipelines across Claude Code, Codex, and Cursor.",
   "type": "module",
   "main": "dist/index.js",

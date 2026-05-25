@@ -55,7 +55,7 @@ const program = new Command();
 program
   .name('skill-composer')
   .description('Install once. Skills chain automatically.')
-  .version('1.0.0')
+  .version('1.0.1')
   .option('-c, --config <path>', 'path to config file');
 
 program
