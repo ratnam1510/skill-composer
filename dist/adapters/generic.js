@@ -1,33 +1,6 @@
 import matter from 'gray-matter';
-import { estimateTokens, extractKeywords, slugify } from '../utils.js';
-function extractNameFromContent(content, filePath) {
-    const headingMatch = content.match(/^#{1,3}\s+(.+)$/m);
-    if (headingMatch)
-        return headingMatch[1].trim();
-    const basename = filePath.split('/').pop() ?? 'untitled';
-    return basename.replace(/\.\w+$/, '');
-}
-function extractDescriptionFromContent(content) {
-    const lines = content.trim().split('\n');
-    for (const line of lines) {
-        const trimmed = line.trim();
-        if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('---')) {
-            return trimmed;
-        }
-    }
-    return '';
-}
-function extractChainsTo(frontmatter, content) {
-    if (Array.isArray(frontmatter.chains_to))
-        return frontmatter.chains_to;
-    if (Array.isArray(frontmatter.chainsTo))
-        return frontmatter.chainsTo;
-    const chainMatch = content.match(/(?:^|\n)\s*(?:chains?[_-]?to|then[_-]?run|followed[_-]?by|next[_-]?skill)\s*:\s*\/?([\w-]+(?:\s*,\s*\/?[\w-]+)*)/i);
-    if (chainMatch) {
-        return chainMatch[1].split(',').map(s => s.trim().replace(/^\//, ''));
-    }
-    return [];
-}
+import { estimateTokens, slugify } from '../utils.js';
+import { inferCategories, inferInputsOutputs, extractNameFromContent, extractDescriptionFromContent, extractChainsTo, extractKeywords, } from './shared.js';
 export const genericAdapter = {
     agent: 'generic',
     extensions: ['.md', '.txt'],
@@ -49,20 +22,21 @@ export const genericAdapter = {
         const instructions = content.trim();
         if (!instructions)
             return null;
-        const keywords = extractKeywords(`${name} ${description}`);
+        const keywords = extractKeywords(`${name} ${description} ${instructions}`);
         const triggers = keywords.slice(0, 8).map((kw, i) => ({
             pattern: kw,
             weight: 1 - i * 0.05,
         }));
+        const { inputs, outputs } = inferInputsOutputs(instructions);
         const chainsTo = extractChainsTo(frontmatter, instructions);
         return {
             id: slugify(name),
             name,
             description,
             triggers,
-            inputs: frontmatter.inputs ?? [],
-            outputs: frontmatter.outputs ?? [],
-            categories: frontmatter.categories ?? [],
+            inputs: frontmatter.inputs ?? inputs,
+            outputs: frontmatter.outputs ?? outputs,
+            categories: frontmatter.categories ?? inferCategories(keywords),
             instructions,
             chainsTo,
             source: { agent: file.agent, path: file.path, format: 'markdown' },
